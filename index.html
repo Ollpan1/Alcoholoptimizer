@@ -15,7 +15,7 @@
             <p>Beräkna, följ och planera promillenivåer i blodet</p>
         </header>
 
-        <!-- Personliga inställningar -->
+        <!-- 1. Personliga inställningar -->
         <section class="card">
             <h2>Personliga inställningar</h2>
             <form id="profile-form" class="form-grid" onsubmit="return false;">
@@ -50,21 +50,22 @@
             </div>
         </section>
 
-        <!-- Lägg Till Dryck -->
+        <!-- 2. Lägg Till Dryck -->
         <section class="card">
             <h2>Lägg Till Dryck</h2>
             <form id="add-drink-form" class="form-grid" onsubmit="return false;">
-                <div class="input-group" style="grid-column: 1 / -1;">
-                    <label for="custom-drink-name">Sök eller ange dryck</label>
-                    <input type="text" id="custom-drink-name" placeholder="T.ex. Heineken, Bärlincrona...">
+                <div class="input-group" style="grid-column: 1 / -1; position: relative;">
+                    <label for="custom-drink-name">Sök Dryck</label>
+                    <input type="text" id="custom-drink-name" placeholder="T.ex. Heineken, Bärlincrona..." autocomplete="off">
+                    <div id="autocomplete-dropdown" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
                 <div class="input-group">
                     <label for="custom-volume">Volym (ml)</label>
-                    <input type="number" id="custom-volume" value="330" min="10" max="5000">
+                    <input type="number" id="custom-volume" value="250" min="10" max="5000">
                 </div>
                 <div class="input-group">
                     <label for="custom-abv">Alkoholhalt (%)</label>
-                    <input type="number" id="custom-abv" value="5.0" step="0.1" min="0" max="96">
+                    <input type="number" id="custom-abv" value="5" step="0.1" min="0" max="96">
                 </div>
                 <div class="input-group">
                     <label for="custom-time">Tid</label>
@@ -75,28 +76,114 @@
                     <button type="button" id="add-drink-submit" class="success-btn">Lägg till berusning</button>
                 </div>
             </form>
-            <div id="history-status" class="stats-box" style="margin-top: 1rem;">Inga drinkar registrerade än</div>
+            <div id="history-status" class="stats-box" style="margin-top: 1rem; text-align: left;">Inga drinkar registrerade än</div>
         </section>
 
-        <!-- Live Promille & Graf -->
+        <!-- 3. Promillekurva -->
         <section class="card">
-            <h2>Live-promillebevakning</h2>
-            <div id="current-bac" class="bac-display">0.00 ‰</div>
+            <h2>Promillekurva</h2>
             <div class="chart-container">
                 <canvas id="bac-chart"></canvas>
             </div>
-            <div id="stats-summary" class="stats-box">Totalt konsumerat: 0g ren alkohol (0 drycker), Kostnad: 0 kr</div>
-            <button id="calc-btn" style="margin-top: 1rem; width: 100%;">Uppdatera simulering</button>
         </section>
 
-        <!-- Dryckessökning & Systembolaget -->
+        <!-- 4. Kvällens Sammanställning -->
         <section class="card">
-            <h2>Dryckessökning (Systembolaget)</h2>
-            <div class="input-group search-box">
-                <input type="text" id="drink-search" placeholder="Sök dryck i Systembolagets databas...">
+            <h2>Kvällens Sammanställning</h2>
+            <div class="summary-hero-box">
+                <span class="summary-hero-label">Nuvarande Promille (Live)</span>
+                <div id="current-bac" class="summary-hero-value">0.00‰</div>
+                <span class="summary-hero-sub">Helt nykter</span>
             </div>
-            <div id="search-results">
-                <div class="no-results">Börja skriva för att söka i Systembolagets databas...</div>
+
+            <div class="summary-stats-grid">
+                <div class="stat-cell">
+                    <span class="stat-label">Antal enheter</span>
+                    <span id="stat-units" class="stat-value">0</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-label">Pengar spenderade</span>
+                    <span id="stat-cost" class="stat-value">0.0 kr</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-label">Snitt-APK</span>
+                    <span id="stat-apk" class="stat-value">-</span>
+                </div>
+            </div>
+
+            <div class="summary-stats-grid" style="margin-top: 1rem;">
+                <div class="stat-cell">
+                    <span class="stat-label">Promillepeak</span>
+                    <span id="stat-peak" class="stat-value" style="color: var(--accent);">-</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-label">Helt nykter (0.0‰)</span>
+                    <span id="stat-sober-time" class="stat-value">21:56</span>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-label">Manövrera ett Boeing 737</span>
+                    <span id="stat-boeing" class="stat-value">05:56</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <span class="stat-label" style="display: block; margin-bottom: 0.5rem;">Ratta bil i...</span>
+                <div class="driving-limits-grid">
+                    <div class="stat-cell">
+                        <span class="limit-country">USA</span>
+                        <span id="limit-usa" class="limit-time">21:56</span>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="limit-country">Danmark</span>
+                        <span id="limit-denmark" class="limit-time">21:56</span>
+                    </div>
+                    <div class="stat-cell">
+                        <span class="limit-country">Sverige</span>
+                        <span id="limit-sweden" class="limit-time">21:56</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Promilleplanerare -->
+        <section class="card">
+            <h2>Promilleplanerare</h2>
+            <form class="form-grid" onsubmit="return false;">
+                <div class="input-group">
+                    <label>Första Klunken (Tid)</label>
+                    <input type="time" value="08:00">
+                </div>
+                <div class="input-group">
+                    <label>Berusningsstart (Tid)</label>
+                    <input type="time" value="20:00">
+                </div>
+                <div class="input-group">
+                    <label>Berusningsslut (Tid)</label>
+                    <input type="time" value="20:01">
+                </div>
+                <div class="input-group">
+                    <label>Önskad Promille (‰)</label>
+                    <input type="number" value="2" min="0.1" max="4" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>Alkoholtyp</label>
+                    <select>
+                        <option>Öl</option>
+                        <option>Vin</option>
+                        <option>Sprit</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Storlek & Styrka</label>
+                    <select>
+                        <option>330ml</option>
+                        <option>500ml</option>
+                        <option>750ml</option>
+                    </select>
+                </div>
+            </form>
+            <div style="margin-top: 1.5rem;">
+                <button type="button" style="width: 100%; background-color: #3b82f6;">Beräkna plan</button>
             </div>
         </section>
     </div>

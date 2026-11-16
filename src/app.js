@@ -59,6 +59,61 @@ function setupEventListeners(history) {
         });
     }
 
+    // Autocomplete för "Sök eller ange dryck" i Lägg Till Dryck
+    const customDrinkInput = document.getElementById('custom-drink-name');
+    const dropdown = document.getElementById('autocomplete-dropdown');
+
+    if (customDrinkInput && dropdown) {
+        customDrinkInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length === 0) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            const matches = searchDrinks(query, { limit: 10 });
+            if (matches.length === 0) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            dropdown.style.display = 'block';
+            dropdown.innerHTML = matches.map(d => {
+                const name = d.name || d.Namn || 'Okänd dryck';
+                const abv = d.abv || d.Alkoholhalt || 0;
+                const volume = d.volume || d.Volymiml || 0;
+                const price = d.price || d.Prisinkl momssek || 0;
+                return `
+                    <div class="autocomplete-item" data-name="${name}" data-volume="${volume}" data-abv="${abv}" data-price="${price}">
+                        <span><strong>${name}</strong></span>
+                        <span style="color: var(--text-muted);">${volume} ml | ${abv}% | ${price} kr</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Klick på förslag fyller i fälten automatiskt
+            dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', (ev) => {
+                    const ds = ev.currentTarget.dataset;
+                    customDrinkInput.value = ds.name;
+                    document.getElementById('custom-volume').value = ds.volume || 330;
+                    document.getElementById('custom-abv').value = ds.abv || 5.0;
+                    dropdown.style.display = 'none';
+                    dropdown.innerHTML = '';
+                });
+            });
+        });
+
+        // Dölj dropdown vid klick utanför
+        document.addEventListener('click', (e) => {
+            if (!customDrinkInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
     const addDrinkSubmit = document.getElementById('add-drink-submit');
     if (addDrinkSubmit) {
         addDrinkSubmit.addEventListener('click', () => {
@@ -159,7 +214,7 @@ function handleDrinkSearch(query) {
         const abv = d.abv || d.Alkoholhalt || 0;
         const volume = d.volume || d.Volymiml || 0;
         const price = d.price || d.Prisinkl momssek || 0;
-        const apk = calculateAPK(d).toFixed(2);
+        const apk = calculateAPK(d).testid ? 0 : calculateAPK(d).toFixed(2);
 
         return `
             <div class="drink-item" data-id="${d.id || d.produktid || ''}">
@@ -168,7 +223,7 @@ function handleDrinkSearch(query) {
                     <span>${volume} ml | ${abv}% | ${price} kr</span>
                 </div>
                 <div class="drink-apk">
-                    <span class="apk-badge">APK: ${apk}</span>
+                    <span class="apk-badge">APK: ${calculateAPK(d).toFixed(2)}</span>
                     <button class="add-drink-btn" data-name="${name}" data-volume="${volume}" data-abv="${abv}" data-price="${price}">+ Lägg till</button>
                 </div>
             </div>
